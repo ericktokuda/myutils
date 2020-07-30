@@ -17,10 +17,6 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * R
 
 ##########################################################
-def calculate_great_circle_dist(g, srcid, tgtid):
-    return haversine(src[0], src[1], tgt[0], tgt[1])
-
-##########################################################
 def add_lengths(g):
     """Add length to the edges """
     if 'x' in g.vertex_attributes(): x = 'x'; y = 'y';
@@ -29,21 +25,19 @@ def add_lengths(g):
     for i, e in enumerate(g.es()):
         lon1, lat1 = float(g.vs[e.source][x]), float(g.vs[e.source][y])
         lon2, lat2 = float(g.vs[e.target][x]), float(g.vs[e.target][y])
-        g.es[i]['weight'] = haversine(lon1, lat1, lon2, lat2)
+        g.es[i]['length'] = haversine(lon1, lat1, lon2, lat2)
     return g
 
 ##########################################################
-def graphml2igraph(graphmlpath, undirected=True, simplify=True);
-    """Simplify @graphmlpath graph to igraph object and add weights
-    According to params @undirected, @simplify, convert
-    to undirected and/or remove multiple edges and self-loops.
+def get_largest_component_from_file(graphpath, undirect=True, simplify=True):
+    """Get largest connected component from @graphatph and add weights
+    According to the params @undirected, @simplify, convert to
+    undirected and/or remove multiple edges and self-loops.
     If the original graph has x,y attributes, we also compute the length"""
 
-    f = os.path.splitext(os.path.basename(graphmlpath))[0]
-    g = igraph.Graph.Read(graphmlpath)
-
-    if simplify: g.simplify()
-    if undirected: g.to_undirected()
+    g = igraph.Graph.Read(graphpath)
+    if simplify: g.simplify(combine_edges='first')
+    if undirect: g.to_undirected()
     g = g.components(mode='weak').giant()
 
     if ('x' in g.vertex_attributes()) or ('lon' in g.vertex_attributes()):

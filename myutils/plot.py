@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 ##########################################################
@@ -26,19 +27,17 @@ def export_all_axis(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
                       bbox_inches=bbox)
                                                                                       
 ##########################################################
-def hex2rgb(hexcolours, normalized=False, alpha=None):
-    rgbcolours = np.zeros((len(hexcolours), 3), dtype=int)
+def hex2rgb(hexcolours, normalize=False, alpha=None):
+    n = len(hexcolours)
+    rgbcolours = np.zeros((n, 3), dtype=float)
+    
     for i, h in enumerate(hexcolours):
         rgbcolours[i, :] = np.array([int(h.lstrip('#')[i:i+2], 16) for i in (0, 2, 4)])
 
     if alpha != None:
-        aux = np.zeros((len(hexcolours), 4), dtype=float)
-        aux[:, :3] = rgbcolours / 255
-        aux[:, -1] = .7 # alpha
-        rgbcolours = aux
-    elif normalized:
-        rgbcolours = rgbcolours.astype(float) / 255
+        rgbcolours = np.concatenate([rgbcolours, np.ones((n, 1))*alpha], axis=1)
+
+    if normalize:
+        rgbcolours[:, :3] = rgbcolours[:, :3] / 255
 
     return rgbcolours
-
-
