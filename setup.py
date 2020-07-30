@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="erikunicamp-myutils", # Replace with your own username
-    version="0.0.1",
+    name="erikunicamp-myutils",
+    version="0.0.4",
     author="erikunicamp",
     author_email="erik.unicamp@gmail.com",
     description="Utilities package",
