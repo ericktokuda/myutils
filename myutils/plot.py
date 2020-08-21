@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+palettes = {
+        'saturated': ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'],
+        'pastel': ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'],
+        }
 
 ##########################################################
 def export_all_axis(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
@@ -41,3 +45,4 @@ def hex2rgb(hexcolours, normalize=False, alpha=None):
         rgbcolours[:, :3] = rgbcolours[:, :3] / 255
 
     return rgbcolours
+
