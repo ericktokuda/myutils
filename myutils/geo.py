@@ -1,10 +1,13 @@
+import numpy as np
 import os
 from math import radians, cos, sin, asin, sqrt
+import geopandas as geopd
+import scipy.optimize
 
-R = 6371000
+R = 6378
 
 ##########################################################
-def haversine(lon1, lat1, lon2, lat2):
+def haversine(lon1, lat1, lon2, lat2, unit='km'):
     """Calculate the great circle distance (in meters) between two points
     on the earth (specified in decimal degrees) """
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -13,14 +16,13 @@ def haversine(lon1, lat1, lon2, lat2):
     dlat = lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a))
-    return c * R
+    if unit in ['m', 'meters']: return c * R * 1000
+    else: return c * R
 
 ##########################################################
 def get_shp_points(shppath):
     """Get points from @shppath and returns list of points, x and y """
-    info(inspect.stack()[0][3] + '()')
 
-    import geopandas as geopd
     geodf = geopd.read_file(shppath)
     shapefile = geodf.geometry.values[0]
     return shapefile.exterior.xy
@@ -50,9 +52,10 @@ def dist_to_deltalon(dist, lonref, latref):
     """Get the variation in longitude based on a reference lat and lon.
     For the same distance, lon varies more than lat."""
     def get_delta_lon_from_d(lon1, lat1=latref, lon2=lonref, lat2=latref):
-        return dist - graph.haversine(lon1, lat1, lon2, lat2)
+        return dist - haversine(lon1, lat1, lon2, lat2)
 
     lon2 = lonref + 20 # a large enough diff in lon to contain the @dist
-    lon2 = bisection_root(get_delta_lon_from_d, lonref, lon2, 0.00001, 0.00001)
+    lon2 = scipy.optimize.bisect(get_delta_lon_from_d, lonref, lon2,
+            xtol=0.00001, rtol=0.00001)
     return np.abs(lon2 - lonref)
 
