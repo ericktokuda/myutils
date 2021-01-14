@@ -3,21 +3,46 @@ import os
 from math import radians, cos, sin, asin, sqrt
 import geopandas as geopd
 import scipy.optimize
+import itertools
 
 R = 6378
 
 ##########################################################
-def haversine(lon1, lat1, lon2, lat2, unit='km'):
+def haversine(p1, p2, unit='km'):
     """Calculate the great circle distance (in meters) between two points
-    on the earth (specified in decimal degrees) """
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    on the earth (specified in decimal degrees). It expects points in the
+    format (lon, lat)"""
+    lonrad1, latrad1 = np.radians(p1)
+    lonrad2, latrad2 = np.radians(p2)
+
+    dlon = lonrad2 - lonrad1
+    dlat = latrad2 - latrad1
+    a = np.sin(dlat/2)**2 + np.cos(latrad1) * np.cos(latrad2) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    if unit in ['m', 'meters']: return c * R * 1000
+    else: return c * R
+
+##########################################################
+def haversine_all(points, unit='km'):
+    """Calculate the great circle distance (in meters) between two points
+    on the earth (specified in decimal degrees) between every pair of points
+    in @points. It expects points in the format (lon, lat)"""
+    n = len(points)
+    combs = np.array(list(itertools.combinations(list(range(n)), 2)))
+    points = np.radians((points.copy()))
+
+    lon1 = points[combs[:, 0], 0]
+    lat1 = points[combs[:, 0], 1]
+    lon2 = points[combs[:, 1], 0]
+    lat2 = points[combs[:, 1], 1]
 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    if unit in ['m', 'meters']: return c * R * 1000
-    else: return c * R
+
+    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    if unit in ['m', 'meters']: return combs, c * R * 1000
+    else: return combs, c * R
 
 ##########################################################
 def get_shp_points(shppath):
@@ -48,14 +73,22 @@ def num2deg(xtile, ytile, zoom):
     return (lon_deg, lat_deg)
 
 ##########################################################
-def dist_to_deltalon(dist, lonref, latref):
-    """Get the variation in longitude based on a reference lat and lon.
+def dist_to_deltalonlat(dist, lonref, latref):
+    """Get the deltalon and deltalat based on a reference lat and lon.
     For the same distance, lon varies more than lat."""
     def get_delta_lon_from_d(lon1, lat1=latref, lon2=lonref, lat2=latref):
-        return dist - haversine(lon1, lat1, lon2, lat2)
+        return dist - haversine([lon1, lat1], [lon2, lat2])
+
+    def get_delta_lat_from_d(lat1, lon1=lonref, lat2=latref, lon2=lonref):
+        return dist - haversine([lon1, lat1], [lon2, lat2])
 
     lon2 = lonref + 20 # a large enough diff in lon to contain the @dist
     lon2 = scipy.optimize.bisect(get_delta_lon_from_d, lonref, lon2,
             xtol=0.00001, rtol=0.00001)
-    return np.abs(lon2 - lonref)
+
+    lat2 = latref + 20 # a large enough diff in lon to contain the @dist
+    lat2 = scipy.optimize.bisect(get_delta_lat_from_d, latref, lat2,
+            xtol=0.00001, rtol=0.00001)
+
+    return np.abs(lon2 - lonref), np.abs(lat2 - latref)
 

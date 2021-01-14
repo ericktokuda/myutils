@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.collections as mc
 import numpy as np
 
 palettes = {
@@ -46,3 +47,36 @@ def hex2rgb(hexcolours, normalize=False, alpha=None):
 
     return rgbcolours
 
+##########################################################
+def create_meshgrid(x, y, nx=100, ny=100, relmargin=.1):
+    """Create a meshgrid considering @x and @y bounds with @nx, @ny tiles
+    and relative margins @relmargins"""
+
+    marginx = (max(x) - min(x)) * relmargin
+    marginy = (max(y) - min(y)) * relmargin
+    xrange = [np.min(x) - marginx, np.max(x) + marginx]
+    yrange = [np.min(y) - marginy - .15, np.max(y) + marginy]
+    dx = (xrange[1] - xrange[0]) / nx
+    dy = (yrange[1] - yrange[0]) / ny
+    xx, yy = np.mgrid[xrange[0]:xrange[1]:(nx*1j), yrange[0]:yrange[1]:(ny*1j)]
+    return xx, yy, dx, dy
+
+#############################################################
+def plot_graph(vcoords, ecoords, plotpath, shppath=''):
+    """Plot the grpah, with vertices colored by accessibility."""
+
+    fig, ax = plt.subplots(figsize=(7, 7))
+
+    sc = ax.scatter(vcoords[:, 0], vcoords[:, 1], c='k',
+            linewidths=0, alpha=.8, s=3, zorder=10) # vertices
+
+    segs = mc.LineCollection(ecoords, colors='k', linewidths=.5, alpha=.5) # edges
+    ax.add_collection(segs)
+
+    if shppath: # border
+        mapx, mapy = get_shp_points(shppath)
+        ax.plot(mapx, mapy, c='dimgray')
+
+    ax.axis('off')
+    plt.tight_layout()
+    plt.savefig(plotpath)

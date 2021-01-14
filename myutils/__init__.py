@@ -1,7 +1,7 @@
 import sys, os
 from datetime import datetime
 
-def info(*args):                                                                      
+def info(*args):
     pref = datetime.now().strftime('[%H:%M:%S]')
     print(pref, *args, file=sys.stdout)
 
@@ -12,3 +12,6 @@ def create_readme(argv, outdir):
     os.system('echo "python {}" >> "{}"'.format(' '.join(argv), readmepath))
     os.system('date +"%Y-%m-%d %H:%M:%S" >> "{}"'.format(readmepath))
     return readmepath
+
+def append_to_file(file, text):
+    os.system('echo "{}" >> "{}"'.format(text, file))
