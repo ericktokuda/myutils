@@ -84,11 +84,11 @@ def dist_to_deltalonlat(dist, lonref, latref):
 
     lon2 = lonref + 20 # a large enough diff in lon to contain the @dist
     lon2 = scipy.optimize.bisect(get_delta_lon_from_d, lonref, lon2,
-            xtol=0.00001, rtol=0.00001)
+            xtol=0.000001, rtol=0.000001)
 
     lat2 = latref + 20 # a large enough diff in lon to contain the @dist
     lat2 = scipy.optimize.bisect(get_delta_lat_from_d, latref, lat2,
-            xtol=0.00001, rtol=0.00001)
+            xtol=0.000001, rtol=0.000001)
 
     return np.abs(lon2 - lonref), np.abs(lat2 - latref)
 
