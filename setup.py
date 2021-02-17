@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="erikunicamp-myutils",
-    version="0.0.30",
+    version="0.0.32",
     author="erikunicamp",
     author_email="erik.unicamp@gmail.com",
     description="Utilities package",

@@ -39,22 +39,3 @@ def simplify_graphml(graphpath, directed=True, simplify=True):
     g.vs['origid'] = list(range(g.vcount()))
 
     return g
-
-##########################################################
-def plot_graph(gin, plotpath, shppath=''):
-    """Plot the graph @gin and export to @plotpath and, if provided, plot
-    the border given by @shppath"""
-    if type(gin) == str:
-        g = simplify_graphml(gin, directed=False, simplify=True)
-    else:
-        g = gin
-
-    vcoords = np.array([(x, y) for x, y in zip(g.vs['x'], g.vs['y'])])
-
-    ecoords = []
-    for e in g.es:
-        ecoords.append([ [float(g.vs[e.source]['x']), float(g.vs[e.source]['y'])],
-                [float(g.vs[e.target]['x']), float(g.vs[e.target]['y'])], ])
-
-    import myutils.plot
-    myutils.plot.plot_graph(vcoords, ecoords, plotpath, shppath)

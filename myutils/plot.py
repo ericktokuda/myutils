@@ -80,3 +80,22 @@ def plot_graph(vcoords, ecoords, plotpath, shppath=''):
     ax.axis('off')
     plt.tight_layout()
     plt.savefig(plotpath)
+
+##########################################################
+def plot_igraph(gin, plotpath, shppath=''):
+    """Plot the graph @gin and export to @plotpath and, if provided, plot
+    the border given by @shppath"""
+    import graph
+    if type(gin) == str:
+        g = graph.simplify_graphml(gin, directed=False, simplify=True)
+    else:
+        g = gin
+
+    vcoords = np.array([(x, y) for x, y in zip(g.vs['x'], g.vs['y'])])
+
+    ecoords = []
+    for e in g.es:
+        ecoords.append([ [float(g.vs[e.source]['x']), float(g.vs[e.source]['y'])],
+                [float(g.vs[e.target]['x']), float(g.vs[e.target]['y'])], ])
+
+    plot_graph(vcoords, ecoords, plotpath, shppath)
