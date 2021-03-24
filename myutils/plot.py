@@ -62,7 +62,7 @@ def create_meshgrid(x, y, nx=100, ny=100, relmargin=.1):
     return xx, yy, dx, dy
 
 #############################################################
-def plot_graph(vcoords, ecoords, plotpath, shppath=''):
+def plot_graph_coords(vcoords, ecoords, plotpath, shppath=''):
     """Plot the grpah, with vertices colored by accessibility."""
 
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -82,20 +82,23 @@ def plot_graph(vcoords, ecoords, plotpath, shppath=''):
     plt.savefig(plotpath)
 
 ##########################################################
-def plot_igraph(gin, plotpath, shppath=''):
-    """Plot the graph @gin and export to @plotpath and, if provided, plot
-    the border given by @shppath"""
-    import graph
-    if type(gin) == str:
-        g = graph.simplify_graphml(gin, directed=False, simplify=True)
-    else:
-        g = gin
+def plot_graph(gin, plotpath='/tmp/mygraph.png', shppath=''):
+    """Plot the graph @gin which can be an igraph object or a graphml file path. If @shppath is provided, plot the border given by @shppath """
 
-    vcoords = np.array([(x, y) for x, y in zip(g.vs['x'], g.vs['y'])])
+    import igraph
+    if type(gin) == str: g = igraph.Graph.Read(gin)
+    else: g = gin
+
+    for attrs in [('lon', 'lat'), ('posx', 'posy'), ('x', 'y')]:
+        if attrs[0] in g.vertex_attributes():
+            xattr = 'x'; yattr = 'y'
+
+    vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
+    vcoords = vcoords.astype(float)
 
     ecoords = []
     for e in g.es:
         ecoords.append([ [float(g.vs[e.source]['x']), float(g.vs[e.source]['y'])],
                 [float(g.vs[e.target]['x']), float(g.vs[e.target]['y'])], ])
 
-    plot_graph(vcoords, ecoords, plotpath, shppath)
+    plot_graph_coords(vcoords, ecoords, plotpath, shppath)
