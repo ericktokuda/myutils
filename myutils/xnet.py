@@ -395,3 +395,30 @@ def igraph2xnet_fast(g):
 	s.close()
 	
 	return strOut	
+
+def xnet2graphml(filename, outfilename='/tmp/mygraph.graphml'):
+	"""
+	Convert xnet object to a .graphml format
+	
+	Parameters
+	----------
+	g : xnet graph
+	
+	Returns
+	-------
+	strOut : string
+	    String that can be written to a .xnet file.
+	"""
+	g = xnet2igraph(filename)
+
+	if not 'x' in g.vertex_attributes() and 'posx' in g.vertex_attributes():
+		g.vs['x'] = g.vs['posx']; del g.vs['posx']
+	if not 'y' in g.vertex_attributes() and 'posy' in g.vertex_attributes():
+		g.vs['y'] = g.vs['posy']; del g.vs['posy']
+
+	for attr in g.vertex_attributes():
+		if type(g.vs[0][attr]) != float: continue
+		g.vs[attr] = np.array(g.vs[attr]).astype(str).tolist()
+    
+	import igraph
+	igraph.write(g, outfilename)
