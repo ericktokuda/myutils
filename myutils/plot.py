@@ -62,7 +62,7 @@ def create_meshgrid(x, y, nx=100, ny=100, relmargin=.1):
     return xx, yy, dx, dy
 
 #############################################################
-def plot_graph_coords(vcoords, ecoords, plotpath, ax, shppath):
+def plot_graph_coords(vcoords, ecoords, ax, shppath):
     """Plot the grpah, with vertices colored by accessibility."""
 
     if not ax: fig, ax = plt.subplots(figsize=(7, 7))
@@ -80,29 +80,28 @@ def plot_graph_coords(vcoords, ecoords, plotpath, ax, shppath):
     return ax
 
 ##########################################################
-def plot_graph(gin, plotpath='/tmp/mygraph.png', inverty=False, ax='', shppath=''):
+def plot_graph(gin, plotpath='/tmp/mygraph.png', inverty=False, ax=None, shppath=''):
     """Plot the graph @gin which can be an igraph object or a graphml file path. If @shppath is provided, plot the border given by @shppath """
 
     import igraph
     if type(gin) == str: g = igraph.Graph.Read(gin)
-    else: g = gin
+    else: g = gin.copy()
 
     for attrs in [('lon', 'lat'), ('posx', 'posy'), ('x', 'y')]:
         if attrs[0] in g.vertex_attributes():
-            xattr = 'x'; yattr = 'y'
+            xattr = attrs[0]; yattr = attrs[1]
 
-    if inverty:
-        g.vs[yattr] = (- np.array(g.vs[yattr])).tolist()
+    if inverty: g.vs[yattr] = (- np.array(g.vs[yattr])).tolist()
 
     vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
     vcoords = vcoords.astype(float)
 
     ecoords = []
     for e in g.es:
-        ecoords.append([ [float(g.vs[e.source]['x']), float(g.vs[e.source]['y'])],
-                [float(g.vs[e.target]['x']), float(g.vs[e.target]['y'])], ])
+        ecoords.append([ [float(g.vs[e.source][xattr]), float(g.vs[e.source][yattr])],
+                [float(g.vs[e.target][xattr]), float(g.vs[e.target][yattr])], ])
 
-    ax = plot_graph_coords(vcoords, ecoords, plotpath, ax, shppath)
+    ax = plot_graph_coords(vcoords, ecoords, ax, shppath)
     ax.axis('off')
     plt.tight_layout()
     plt.savefig(plotpath)
