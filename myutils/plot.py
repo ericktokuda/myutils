@@ -62,10 +62,10 @@ def create_meshgrid(x, y, nx=100, ny=100, relmargin=.1):
     return xx, yy, dx, dy
 
 #############################################################
-def plot_graph_coords(vcoords, ecoords, plotpath, shppath=''):
+def plot_graph_coords(vcoords, ecoords, plotpath, ax, shppath):
     """Plot the grpah, with vertices colored by accessibility."""
 
-    fig, ax = plt.subplots(figsize=(7, 7))
+    if not ax: fig, ax = plt.subplots(figsize=(7, 7))
 
     sc = ax.scatter(vcoords[:, 0], vcoords[:, 1], c='k',
             linewidths=0, alpha=.8, s=3, zorder=10) # vertices
@@ -77,12 +77,10 @@ def plot_graph_coords(vcoords, ecoords, plotpath, shppath=''):
         mapx, mapy = get_shp_points(shppath)
         ax.plot(mapx, mapy, c='dimgray')
 
-    ax.axis('off')
-    plt.tight_layout()
-    plt.savefig(plotpath)
+    return ax
 
 ##########################################################
-def plot_graph(gin, plotpath='/tmp/mygraph.png', shppath=''):
+def plot_graph(gin, plotpath='/tmp/mygraph.png', inverty=False, ax='', shppath=''):
     """Plot the graph @gin which can be an igraph object or a graphml file path. If @shppath is provided, plot the border given by @shppath """
 
     import igraph
@@ -93,6 +91,9 @@ def plot_graph(gin, plotpath='/tmp/mygraph.png', shppath=''):
         if attrs[0] in g.vertex_attributes():
             xattr = 'x'; yattr = 'y'
 
+    if inverty:
+        g.vs[yattr] = (- np.array(g.vs[yattr])).tolist()
+
     vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
     vcoords = vcoords.astype(float)
 
@@ -101,4 +102,7 @@ def plot_graph(gin, plotpath='/tmp/mygraph.png', shppath=''):
         ecoords.append([ [float(g.vs[e.source]['x']), float(g.vs[e.source]['y'])],
                 [float(g.vs[e.target]['x']), float(g.vs[e.target]['y'])], ])
 
-    plot_graph_coords(vcoords, ecoords, plotpath, shppath)
+    ax = plot_graph_coords(vcoords, ecoords, plotpath, ax, shppath)
+    ax.axis('off')
+    plt.tight_layout()
+    plt.savefig(plotpath)
