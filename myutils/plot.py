@@ -81,17 +81,17 @@ def plot_graph_coords(vcoords, ecoords, ax, shppath):
 
 ##########################################################
 def plot_graph(gin, plotpath='/tmp/mygraph.png', inverty=False, ax=None, shppath=''):
-    """Plot the graph @gin which can be an igraph object or a graphml file path. If @shppath is provided, plot the border given by @shppath """
+    """Plot the graph @gin which can be an igraph object or a graphml file path. If @shppath is provided, plot the border given by @shppath."""
 
     import igraph
     if type(gin) == str: g = igraph.Graph.Read(gin)
-    else: g = gin.copy()
+    else: g = gin
 
     for attrs in [('lon', 'lat'), ('posx', 'posy'), ('x', 'y')]:
         if attrs[0] in g.vertex_attributes():
             xattr = attrs[0]; yattr = attrs[1]
 
-    if inverty: g.vs[yattr] = (- np.array(g.vs[yattr])).tolist()
+    if inverty: ax.invert_yaxis()
 
     vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
     vcoords = vcoords.astype(float)
