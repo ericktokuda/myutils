@@ -1,3 +1,5 @@
+import os
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.collections as mc
 import numpy as np
@@ -28,7 +30,7 @@ def export_all_axis(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
             x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
 
         bbox =  matplotlib.transforms.Bbox.from_extents(x0, y0, x1, y1)
-        fig.savefig(pjoin(outdir, prefix + labels[k] + '.' + fmt),
+        fig.savefig(os.path.join(outdir, prefix + labels[k] + '.' + fmt),
                       bbox_inches=bbox)
                                                                                       
 ##########################################################
