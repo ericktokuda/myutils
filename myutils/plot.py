@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.collections as mc
 import numpy as np
+from myutils.geo import get_shp_points
 
 palettes = {
         'saturated': ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'],
@@ -10,7 +11,7 @@ palettes = {
         }
 
 ##########################################################
-def export_all_axis(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
+def export_subplots(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
     n = ax.shape[0]*ax.shape[1]
     for k in range(n):
         i = k // ax.shape[1]
@@ -32,12 +33,12 @@ def export_all_axis(ax, fig, labels, outdir, pad=0.3, prefix='', fmt='pdf'):
         bbox =  matplotlib.transforms.Bbox.from_extents(x0, y0, x1, y1)
         fig.savefig(os.path.join(outdir, prefix + labels[k] + '.' + fmt),
                       bbox_inches=bbox)
-                                                                                      
+
 ##########################################################
 def hex2rgb(hexcolours, normalize=False, alpha=None):
     n = len(hexcolours)
     rgbcolours = np.zeros((n, 3), dtype=float)
-    
+
     for i, h in enumerate(hexcolours):
         rgbcolours[i, :] = np.array([int(h.lstrip('#')[i:i+2], 16) for i in (0, 2, 4)])
 
