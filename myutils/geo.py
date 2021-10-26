@@ -50,7 +50,12 @@ def get_shp_points(shppath):
 
     geodf = geopd.read_file(shppath)
     shapefile = geodf.geometry.values[0]
-    return shapefile.exterior.xy
+    if shapefile.geom_type == 'Polygon': return shapefile.exterior.xy
+    elif shapefile.geom_type == 'MultiPolygon':
+        polys = list(shapefile)
+        areas = [p.area for p in polys]
+        poly = polys[np.argmax(areas)]
+        return poly.exterior.xy
 
 ##########################################################
 def deg2num(lon_deg, lat_deg, zoom, imgsize=256):
