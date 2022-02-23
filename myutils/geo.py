@@ -9,7 +9,7 @@ R = 6378
 
 ##########################################################
 def haversine(p1, p2, unit='km'):
-    """Calculate the great circle distance (in meters) between two points
+    """Calculate the great circle distance (in kilometers) between two points
     on the earth (specified in decimal degrees). It expects points in the
     format (lon, lat)"""
     lonrad1, latrad1 = np.radians(p1)
