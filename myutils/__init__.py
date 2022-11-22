@@ -35,6 +35,7 @@ def run_bash_cmd(cmd, verb=True, sync=True):
         if verb:
             info('OUTPUT:{}, ERR:{}'.format(
                 output.decode('utf-8'), err.decode('utf-8')))
+        return output
     else:
         Popen(cmd, shell=True, stdout=DEVNULL, stderr=DEVNULL)
-
+        return '' # Nothing is returned
