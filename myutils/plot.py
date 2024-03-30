@@ -65,10 +65,12 @@ def create_meshgrid(x, y, nx=100, ny=100, relmargin=.1):
     return xx, yy, dx, dy
 
 #############################################################
-def plot_graph_coords(vcoords, ecoords, ax, shppath):
+def plot_graph_coords(vcoords, ecoords, ax, shppath, inverty=False):
     """Plot the grpah, with vertices colored by accessibility."""
 
     if not ax: fig, ax = plt.subplots(figsize=(7, 7))
+
+    if inverty: ax.invert_yaxis()
 
     sc = ax.scatter(vcoords[:, 0], vcoords[:, 1], c='k',
             linewidths=0, alpha=.8, s=3, zorder=10) # vertices
@@ -90,21 +92,26 @@ def plot_graph(gin, plotpath='/tmp/mygraph.png', inverty=False, ax=None, shppath
     if type(gin) == str: g = igraph.Graph.Read(gin)
     else: g = gin
 
+    spatial = False
     for attrs in [('lon', 'lat'), ('posx', 'posy'), ('x', 'y')]:
         if attrs[0] in g.vertex_attributes():
             xattr = attrs[0]; yattr = attrs[1]
+            spatial = True
 
-    if inverty: ax.invert_yaxis()
 
-    vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
+    if spatial:
+        vcoords = np.array([(x, y) for x, y in zip(g.vs[xattr], g.vs[yattr])])
+    else:
+        vcoords = np.array(gin.layout_auto())
+
     vcoords = vcoords.astype(float)
 
     ecoords = []
     for e in g.es:
-        ecoords.append([ [float(g.vs[e.source][xattr]), float(g.vs[e.source][yattr])],
-                [float(g.vs[e.target][xattr]), float(g.vs[e.target][yattr])], ])
+        ecoords.append([ [float(vcoords[e.source][0]), float(vcoords[e.source][1])],
+                [float(vcoords[e.target][0]), float(vcoords[e.target][1])], ])
 
-    ax = plot_graph_coords(vcoords, ecoords, ax, shppath)
+    ax = plot_graph_coords(vcoords, ecoords, ax, shppath, inverty)
     ax.axis('off')
     plt.tight_layout()
     plt.savefig(plotpath)

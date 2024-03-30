@@ -9,13 +9,23 @@ def info(*args):
 
 def create_readme(argv, outdir):
     readmepath = os.path.join(outdir, 'README.txt')
-    os.system('printf "git commit: " >> "{}"'.format(readmepath))
-    os.system('git rev-parse  HEAD >> "{}"'.format(readmepath))
-    os.system('echo "python {}" >> "{}"'.format(' '.join(argv), readmepath))
+    SEP = '##########################################################'
+    os.system('echo "{}" >> "{}"'.format(SEP, readmepath))
+    if os.path.isdir('.git'):
+        os.system('printf "git commit: " >> "{}"'.format(readmepath))
+        os.system('git rev-parse  HEAD >> "{}"'.format(readmepath))
+    else:
+        os.system('echo "Not a git repository"')
+
+    os.system('printf "Machine: " >> "{}"'.format(readmepath))
+    os.system('hostname >> "{}"'.format(readmepath))
+
+    os.system('echo "(python) {}" >> "{}"'.format(' '.join(argv), readmepath))
+    os.system('printf "Started: " >> {}'.format(readmepath))
     os.system('date +"%Y-%m-%d %H:%M:%S" >> "{}"'.format(readmepath))
     return readmepath
 
-def append_to_file(file, text):
+def append_to_file(text, file):
     info('{}'.format(text))
     os.system('echo "{}" >> "{}"'.format(text, file))
 
